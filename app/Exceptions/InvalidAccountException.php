@@ -2,9 +2,7 @@
 
 namespace App\Exceptions;
 
-use Exception;
-
-class InvalidAccountException extends Exception
+class InvalidAccountException extends BaseException
 {
     public function render()
     {

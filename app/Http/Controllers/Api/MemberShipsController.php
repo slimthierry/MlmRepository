@@ -1,38 +1,48 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-
+use App\Abstracts\Http\ApiController;
 use App\Exceptions\MemberNotBelongsToUser;
 use App\Http\Resources\ClientMembershipResource;
 use App\Models\Membership;
+use App\Repositories\MembershipRepository;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
-
 // use Illuminate\Support\Facades\Mail;
 // use App\Mail\SendCode;
 
-class MemberShipController extends Controller
+class MemberShipsController extends ApiController
 {
     /**
-     *
-     *
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
 
+    protected $MembershipRepository;
 
     private $levels = array('tree'=>[]);
 
     private $finallevel = 0;
 
-    // private $tree = 0;
+        /**
+     * Create a new MemberController instance.
+     *
+     * @param \App\Repositories\MembershipRepository $MembershipRepository
+     * @return void
+     */
+    public function __construct(MembershipRepository $MembershipRepository)
+    {
+    $this->MembershipRepository = $MembershipRepository;
+}
 
-
-
+/**
+ * Login
+ * @return [type] [description]
+ */
     public function index()
     {
 
@@ -57,7 +67,6 @@ class MemberShipController extends Controller
     {
 
     }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -67,33 +76,28 @@ class MemberShipController extends Controller
     public function store(Request $request)
         {
                 $this->validate($request,[
-                'phone_number'=>'required',
-                'email'=>'required|regex:/(.+)@(.+)\.(.+)/i'
+                'phone_number'=>'required|min:8|numeric',
+                'email'=>'required|email'
             ]);
             $id =$request->input('id');
-            $ref_id =$request->input('ref_id');
             $parrain_id =$request->input('parrain_id');
-            $first_name =$request->input('first_name');
-            $last_name =$request->input('last_name');
+            $username =$request->input('username');
             $phone_number=$request->input('phone_number');
             $email =$request->input('email');
             $code =$this->generateKey();
-            $member_level =$request->input('member_level');
+            // $member_level =$request->input('member_level');
             $created_at =$request->input('created_at');
 
             $member = new Membership([
                 'id' => $id,
-                'ref_id'=>$ref_id,
                 'parrain_id'=>$parrain_id,
-                'first_name'=> $first_name,
-                'last_name '=> $last_name,
+                'username'=> $username,
                 'phone_number' =>$phone_number,
                 'email' =>$email,
                 'code'=> $code,
-                'member_level' => $member_level,
+                'member_level' => 0,
                 'created_at' => $created_at
             ]);
-
 
                 if ($member->save()) {[
                     # code...
@@ -120,19 +124,8 @@ class MemberShipController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-
-
     public function show(Membership $member, $id)
     {
-        // $count = 0;
-        // $results = Membership::where('parrain_id', '=', $id)->get();
-        //     foreach ($results as $res) {
-        //         $var = str_repeat(' ', $this->level) . $res->ref_id . "\n";
-        // $count += 1 + $this->getChildren($res->ref_id, $this->level + 1);
-        // }
-        // return  $results;
-
-        // return new  ClientMembershipResource($member);
 
     }
 
@@ -168,8 +161,8 @@ class MemberShipController extends Controller
              $results = Membership::where('id', '=', $parrain_id)->get();
                 for ($i=0; $i < 10; $i++) {
                      # code...
-                     $var = str_repeat(' ', $this->levels) . $results->ref_id . "\n";
-                     $count += 1 + $this->getChildren($results->ref_id, $this->levels + 1);
+                     $var = str_repeat(' ', $this->levels) . $results->parrain . "\n";
+                     $count += 1 + $this->getChildren($results->parrain, $this->levels + 1);
                  }
              return $var;
     }
@@ -213,12 +206,12 @@ class MemberShipController extends Controller
                 }
             }
 
-            public function getAllParents($id = NULL) {
+    public function getAllParents($id = NULL) {
         if ($id == NULL) {
             return false;
             }
 
-            $results = MemberShip::where('ref_id = $id')->get();
+            $results = MemberShip::where('parrain_id= $id')->get();
 
             $res[] = $results;
             if ($results->parrain_id != 0) {
@@ -241,8 +234,8 @@ class MemberShipController extends Controller
             return $results;
 
             // foreach ($results as $res) {
-            //     $var = str_repeat(' ', $level) . $res->ref_id . "\n";
-            //     $count += 1 + $this->children($res->ref_id, $level + 1);
+            //     $var = str_repeat(' ', $level) . $res->parrain_id. "\n";
+            //     $count += 1 + $this->children($res->parrain_id, $level + 1);
             // }
 
             // return $results;
@@ -326,7 +319,6 @@ class MemberShipController extends Controller
 
             return $this->levels;
         }
-
 
     // public function SendCode(Request $request)
     // {

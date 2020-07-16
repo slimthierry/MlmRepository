@@ -1,33 +1,109 @@
 <?php
 
+
 namespace App\Models;
 
-use App\Models\Membership;
+use App\Abstracts\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Money\Money;
+use Money\Currency;
+use Carbon\Carbon;
 
-use App\Models\Transaction;
-// use Laravel\Paddle\Billable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
-
+/**
+ * @property    Money $balance
+ *
+ * @property    Carbon $updated_at
+ * @property    Carbon $created_at
+ * @property    Carbon $created_at
+ */
 class Account extends Model
 {
-    //
-    protected $table= 'Accounts';
+    /**
+     * @var string
+     */
+    protected $table = 'Accounts';
 
-    protected $fillable =['id', 'status', 'balance', 'created_at', 'client_membership_id'];
+     /**
+     * Attributes that should be mass-assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['id','client_membership_id', 'payment_mode_id', 'balance', 'enabled'];
 
-    protected $hibben =[];
+      /**
+     * Sortable columns.
+     *
+     * @var array
+     */
+    public $sortable = ['id','enabled'];
 
-    public function Membership(){
-        return $this->belongsTo(Membership::class);
-      }
+        /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['balance'];
 
-      public function Transaction(){
-        return $this->hasMany(Transaction::class);
-      }
 
-      public function isEnable()
-      {
-          return Cache::has('account-is-enable' .$this->id);
-      }
-}
+    public function transaction(): HasMany
+    {
+        return $this->hasMany('App\Models\Transaction');
+    }
+    public function credit(
+        $value,
+        Carbon $created_at = null
+    ): Transaction {
+        $value = is_a($value, Money::class)
+            ? $value
+            : new Money($value, new Currency($this->currency));
+        return $this->postTrans($value, null, $created_at);
+    }
+
+    public function debit(
+        $value,
+        Carbon $created_at = null
+    ): Transaction {
+        $value = is_a($value, Money::class)
+            ? $value
+            : new Money($value, new Currency($this->currency));
+        return $this->postTrans(null, $value, $created_at);
+    }
+    // public function enable(Account $account)
+    // {
+    //     $response = $this->jsonDispatch(new UpdateAccount($account, request()->merge(['enabled' => 1])));
+
+    //     if ($response['success']) {
+    //         $response['message'] = trans('messages.success.enabled', ['type' => $account->id]);
+    //     }
+
+    //     return response()->json($response);
+    // }
+
+    // public function disable(Account $account)
+    // {
+    //     $response = $this->jsonDispatch(new UpdateAccount($account, request()->merge(['enabled' => 0])));
+
+    //     if ($response['success']) {
+    //         $response['message'] = trans('messages.success.disabled', ['type' => $account->id]);
+    //     }
+
+    //     return response()->json($response);
+    // }
+
+
+    // public function resetCurrentBalances()
+    // {
+    //     $this->balance = $this->getBalance();
+    //     $this->save();
+    //     return $this->balance;
+    // }
+
+    /**
+     * @param Money|float $value
+     */
+    protected function getBalanceAttribute($value)
+    {
+        // return new Money($value, new Currency($this->currency));
+    }
+
+    }

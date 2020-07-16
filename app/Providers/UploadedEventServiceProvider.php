@@ -2,33 +2,32 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Schema;
+use App\Models\Membership;
 use Illuminate\Support\ServiceProvider;
+use App\Observers\MemberObserver;
 
-
-class AppServiceProvider extends ServiceProvider
+class UploadedEventServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Register services.
      *
      * @return void
      */
     public function register()
     {
         //
-
-
     }
 
     /**
-     * Bootstrap any application services.
+     * Bootstrap services.
      *
      * @return void
      */
     public function boot()
     {
+        //
+        Membership::observe(MemberObserver::class);
 
-        Schema::defaultStringLength(191);
+
     }
 }
-

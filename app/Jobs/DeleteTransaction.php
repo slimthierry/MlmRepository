@@ -2,28 +2,29 @@
 
 namespace App\Jobs;
 
-// use App\Http\Controllers\MemberShipController;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Membership;
+use Illuminate\Support\Facades\DB;
 
-class TreeProcess implements ShouldQueue
+class DeleteTransaction implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $member;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($member)
+
+    protected $transaction;
+
+    public function __construct($transaction)
     {
-        //
-        $this->membership= $member;
+            $this->transaction = $transaction;
+
     }
 
     /**
@@ -33,7 +34,21 @@ class TreeProcess implements ShouldQueue
      */
     public function handle()
     {
-        $repo = new MemberShip();
-        $repo->save($this->member);
+        // $this->authorize();
+
+        DB::transaction(function () {
+            $this->transaction->recurring()->delete();
+            $this->transaction->delete();
+        });
+
+        return true;
     }
+
+    /**
+     * Determine if this action is applicable.
+     *
+     * @return void
+     */
+
+
 }

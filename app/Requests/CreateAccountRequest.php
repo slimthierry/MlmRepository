@@ -3,9 +3,11 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Account;
 
-class MembershipsRequest extends FormRequest
+class CreateAccountRequest extends FormRequest
 {
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -13,7 +15,7 @@ class MembershipsRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,10 +25,6 @@ class MembershipsRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            //
-            // 'phone_number' => 'required',
-            // 'email'=> 'required'
-        ];
+        // return Account::$rules;
     }
 }

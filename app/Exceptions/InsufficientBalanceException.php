@@ -2,12 +2,11 @@
 
 namespace App\Exceptions;
 
-use Exception;
 
-class InsufficientBalanceException extends Exception
+class InsufficientBalanceException extends  BaseException
 {
     public function render()
     {
-    	return ['errors' => 'odood'];
+    	return ['errors' => 'errorr'];
     }
 }

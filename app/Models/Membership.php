@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Abstracts\Model;
 use App\Models\Account;
-use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Membership extends Model
 {
@@ -17,7 +17,7 @@ class Membership extends Model
   * @var array
   */
 
-    protected $fillable = ['id', 'first_name', 'last_name', 'parrain_id', 'phone_number', 'email', 'code', 'member_level'];
+    protected $fillable = ['id','parrain_id', 'username', 'phone_number', 'email', 'code', 'member_level'];
 
  /**
   * The attributes that should be hidden for arrays.
@@ -27,14 +27,14 @@ class Membership extends Model
 
     protected $hidden = [];
 
-    public function Account()
+    public function Account(): HasMany
     {
         return $this->hasMany(Account::class);
     }
 
 
     public function ref () {
-        return $this->where('id', $this->ref_id)->first();
+        return $this->where('id', $this->parrain)->first();
     }
 
     public function parent () {
@@ -42,6 +42,6 @@ class Membership extends Model
     }
 
     public function children () {
-        return $this->where('ref_id', $this->id)->get();
+        return $this->where('parrain_id', $this->id)->get();
     }
 }

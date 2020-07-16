@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\TransactionsController;
 use GuzzleHttp\Middleware;
 use Illuminate\Http\Request;
@@ -26,21 +27,34 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::group(['prefix' => 'member'], function () {
     //Member route
-    Route::apiResource('/member', 'MemberShipController');
-    Route::get('/children/{parrain_id}', 'MemberShipController@getChildren');
-    Route::get('/code', 'MemberShipController@generateKey');
+    Route::apiResource('/member', 'Api\MemberShipsController');
+    Route::get('/children/{parrain_id}', 'Api\MemberShipsController@getChildren');
+    Route::get('/code', 'Api\MemberShipsController@generateKey');
 
     //Transactions Route
-    Route::apiResource('/transactions', 'TransactionsController');
-    Route::get('/getTransactionReport/{id}', 'TransactionsController@getTransactionReport');
+    Route::apiResource('/transactions', 'Api\TransactionsController');
+    Route::get('/getTransactionReport/{id}', 'Api\TransactionsController@getTransactionReport');
 
-    Route::get('transfer/{id}', 'TransactionsController@transfer');
+    Route::put('transfer/{id}', 'Api\TransactionsController@transfer');
 
     // Accounts Routing
-    Route::apiResource('/account/registration', 'AccountController');
+    Route::apiResource('/account', 'Api\AccountsController');
+    Route::get('accounts/{account}/enable', 'Api\AccountsController@enable')->name('accounts.enable');
+    Route::get('accounts/{account}/disable', 'Api\AccountsController@disable')->name('accounts.disable');
 
+    Route::post('accounts/balance' , 'Api\AccountsController@getBalance');
+    
 });
-Route::get('getTree/{id}', 'MemberShipController@getTree');
+    Route::get('getTree/{id}', 'Api\MemberShipsController@getTree');
+    Route::get('getStatus/{id}', 'Api\AccountsController@getStatus');
+
+
+    Route::any('/pay', 'Api\PaymentsController@index');
+    Route::any('/success', 'APi\PaymentsController@success');
+    Route::POST('/fail', 'Api\PaymentsController@fail');
+    Route::POST('/cancel', 'Api\PaymentsController@cancel');
+    Route::POST('/pin', 'Api\PaymentsController@pin');
+
 
 
 

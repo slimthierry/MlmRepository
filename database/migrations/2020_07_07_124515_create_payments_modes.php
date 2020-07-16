@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePayementsModes extends Migration
+class CreatePaymentsModes extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,12 @@ class CreatePayementsModes extends Migration
      */
     public function up()
     {
-        Schema::create('payements_modes', function (Blueprint $table) {
-            $table->Increments('id');
-            $table->timestamp('created_at')->useCurrent();
+        Schema::create('payments_modes', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('type', 50)->nullable();
+            $table->decimal('amount', 16, 4)->default(0);
+
+            $table->timestamps();
         });
     }
 
@@ -26,6 +29,6 @@ class CreatePayementsModes extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('payemenets_modes');
+        Schema::dropIfExists('payments_modes');
     }
 }

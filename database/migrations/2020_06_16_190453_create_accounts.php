@@ -14,12 +14,19 @@ class CreateAccounts extends Migration
     public function up()
     {
         Schema::create('accounts', function (Blueprint $table) {
-            $table->Increments('id');
-            $table->string('status');
-            $table->string('balance');
-            $table->timestamp('created_at')->useCurrent();
-            $table->integer('client_membership_id')->unsigned();
+
+            $table->id();
+            $table->unsignedInteger('client_membership_id');
+            // $table->unsignedInteger('payment_mode_id');
+            $table->decimal('balance', 16, 4)->default(0);
+            $table->boolean('enabled')->default(0);
+            // $table->integer('paid')->default(0);
+
             $table->foreign('client_membership_id','clients_memberships')->references('id')->on('clients_memberships')->onDelete('cascade');
+
+
+            $table->timestamps();
+
         });
     }
 
@@ -31,5 +38,11 @@ class CreateAccounts extends Migration
     public function down()
     {
         Schema::dropIfExists('accounts');
+
+        // Schema::table('accounts', function (Blueprint $table) {
+        //     Schema::enableForeignKeyConstraints();
+        //     $table->dropForeign(['client_membership_id']);
+        // });
+
     }
 }
